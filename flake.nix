@@ -1,0 +1,130 @@
+{
+  description = "NixOS configuration (flake-only)";
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    
+    # Add unstable nixpkgs for newer packages
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    
+    helix-config.url = "github:brandonchui/helix_settings/HEAD";
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    zig.url = "github:mitchellh/zig-overlay";
+  };
+  
+  outputs = { self, nixpkgs, nixpkgs-unstable, helix-config, home-manager, zig, ... }:
+  let
+    overlays = [
+      (final: prev:
+        let
+          unstable = import nixpkgs-unstable {
+            system = prev.system;
+            config.allowUnfree = true;
+          };
+        in {
+          # from unstable:
+          helix = unstable.helix;
+          claude-code = unstable.claude-code;
+        })
+    ];
+  in
+  {
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ./hardware-configuration.nix
+        home-manager.nixosModules.home-manager
+        ({ config, pkgs, ... }: {
+          # Apply the overlay to nixpkgs
+          nixpkgs.overlays = overlays;
+          
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.bchui = { ... }: {
+            imports = [helix-config.homeManagerModules.default];
+            programs.git = {
+              enable = true;
+              userName = "brandonchui";
+              userEmail = "chuib@usc.edu";
+              extraConfig = {
+                init.defaultBranch = "master";
+              };
+            };
+            home.stateVersion = "25.05";
+          };
+          
+          nix.settings.experimental-features = [ "nix-command" "flakes" ];
+          boot.loader.grub.enable = true;
+          boot.loader.grub.device = "/dev/sda";
+          boot.loader.grub.useOSProber = true;
+          networking.hostName = "nixos";
+          networking.networkmanager.enable = true;
+          time.timeZone = "America/Los_Angeles";
+          services.xserver.enable = true;
+          services.xserver.displayManager.gdm.enable = true;
+          services.xserver.desktopManager.gnome.enable = true;
+          services.printing.enable = true;
+          hardware.pulseaudio.enable = false;
+          security.rtkit.enable = true;
+          services.pipewire = {
+            enable = true;
+            alsa.enable = true;
+            alsa.support32Bit = true;
+            pulse.enable = true;
+          };
+          users.users.bchui = {
+            isNormalUser = true;
+            description = "Brandon Chui";
+            extraGroups = [ "networkmanager" "wheel" ];
+          };
+          programs.firefox.enable = true;
+          nixpkgs.config.allowUnfree = true;
+          environment.systemPackages = with pkgs; [
+            linuxPackages.perf
+            helix
+            git
+            clang
+            clang-tools
+            gcc
+            cmake
+            ghostty
+            xclip
+            boost
+            lazygit
+            open-vm-tools
+            zig.packages.${system}.master
+            zls
+            gnumake
+            wget
+            zellij
+            bash
+            claude-code
+            ocamlPackages.ocaml
+            ocamlPackages.dune_3
+            ocamlPackages.findlib
+            ocamlPackages.utop
+            ocamlPackages.odoc
+            ocamlPackages.ocaml-lsp
+            dune-release
+            ocamlPackages.base
+            ocamlPackages.menhir
+            ocamlformat
+            # core rust
+            rustc
+            cargo
+            rustfmt
+            clippy
+            rust-analyzer
+            # link
+            mold
+            #cargo stuff
+            cargo-watch
+          ];
+          environment.variables.EDITOR = "hx";
+          virtualisation.vmware.guest.enable = true;
+          system.stateVersion = "25.05";
+        })
+      ];
+    };
+  };
+}
