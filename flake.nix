@@ -2,10 +2,7 @@
   description = "NixOS configuration (flake-only)";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
-    
-    # Add unstable nixpkgs for newer packages
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    
     helix-config.url = "github:brandonchui/helix_settings/HEAD";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -14,17 +11,15 @@
   
   outputs = { self, nixpkgs, nixpkgs-unstable, helix-config, home-manager, zig, ... }:
   let
+    unstablePkgs = import nixpkgs-unstable{
+      system ="x86_64-linux" ;
+      config.allowUnfree = true;
+    };
     overlays = [
       (final: prev:
-        let
-          unstable = import nixpkgs-unstable {
-            system = prev.system;
-            config.allowUnfree = true;
-          };
-        in {
-          # from unstable:
-          helix = unstable.helix;
-          claude-code = unstable.claude-code;
+        {
+          helix = unstablePkgs.helix;
+          claude-code = unstablePkgs.claude-code;
         })
     ];
   in
@@ -42,6 +37,9 @@
           home-manager.useUserPackages = true;
           home-manager.users.bchui = { ... }: {
             imports = [helix-config.homeManagerModules.default];
+            # programs.helix.extraPackages = [
+            #   unstablePkgs.tree-sitter-cpp
+            # ];
             programs.git = {
               enable = true;
               userName = "brandonchui";
