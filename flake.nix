@@ -117,6 +117,7 @@
             mold
             #cargo stuff
             cargo-watch
+            python314
           ];
           environment.variables.EDITOR = "hx";
           virtualisation.vmware.guest.enable = true;
