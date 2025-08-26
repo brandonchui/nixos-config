@@ -84,6 +84,7 @@
             clang
             clang-tools
             gcc
+            ninja
             cmake
             ghostty
             xclip
