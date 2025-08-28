@@ -81,6 +81,8 @@
             linuxPackages.perf
             helix
             git
+            meson
+            jujutsu
             clang
             clang-tools
             gcc
