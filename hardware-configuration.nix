@@ -10,15 +10,13 @@
   boot.kernelModules = [ "kvm-arm" ];
   boot.extraModulePackages = [ ];
 
-  # You'll need to update this with the actual disk UUID after installation
-  # Run 'blkid' to find the correct UUID
   fileSystems."/" =
-    { device = "/dev/disk/by-label/nixos";
+    { device = "/dev/disk/by-uuid/2ec7e152-3d46-44b3-b9f5-ddb91e181a03";
       fsType = "ext4";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-label/boot";
+    { device = "/dev/disk/by-uuid/657A-18CE";
       fsType = "vfat";
     };
 
