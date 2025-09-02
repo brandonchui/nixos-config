@@ -12,7 +12,7 @@
   outputs = { self, nixpkgs, nixpkgs-unstable, helix-config, home-manager, zig, ... }:
   let
     unstablePkgs = import nixpkgs-unstable{
-      system ="x86_64-linux" ;
+      system ="aarch64-linux" ;
       config.allowUnfree = true;
     };
     overlays = [
@@ -25,7 +25,7 @@
   in
   {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
+      system = "aarch64-linux";
       modules = [
         ./hardware-configuration.nix
         home-manager.nixosModules.home-manager
@@ -52,9 +52,9 @@
           };
           
           nix.settings.experimental-features = [ "nix-command" "flakes" ];
-          boot.loader.grub.enable = true;
-          boot.loader.grub.device = "/dev/sda";
-          boot.loader.grub.useOSProber = true;
+          # Use systemd-boot for ARM64 instead of GRUB
+          boot.loader.systemd-boot.enable = true;
+          boot.loader.efi.canTouchEfiVariables = true;
           networking.hostName = "nixos";
           networking.networkmanager.enable = true;
           time.timeZone = "America/Los_Angeles";
@@ -92,7 +92,7 @@
             xclip
             boost
             lazygit
-            open-vm-tools
+            # Parallels guest tools not needed in package list
             zig.packages.${system}.master
             zls
             gnumake
@@ -123,7 +123,9 @@
             python314
           ];
           environment.variables.EDITOR = "hx";
-          virtualisation.vmware.guest.enable = true;
+          # Enable Parallels guest support for better integration
+          hardware.parallels.enable = true;
+          hardware.parallels.autoMountShares = true;
           system.stateVersion = "25.05";
         })
       ];
