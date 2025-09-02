@@ -4,7 +4,11 @@ This repository contains my NixOS system configuration using Nix flakes.
 
 ## Overview
 
-This is a flake-based NixOS configuration for an x86_64-linux system running on VMware. The configuration includes a GNOME desktop environment, development tools, and various programming language toolchains.
+This repository contains NixOS configurations for multiple platforms:
+- **main branch**: x86_64-linux system running on VMware
+- **parallels-mac-arm branch**: aarch64-linux (ARM64) system running on Parallels for Mac
+
+Both configurations include a GNOME desktop environment, development tools, and various programming language toolchains.
 
 ## Features
 
@@ -12,8 +16,12 @@ This is a flake-based NixOS configuration for an x86_64-linux system running on 
 - **Desktop Environment**: GNOME with GDM display manager
 - **Audio**: PipeWire with ALSA and PulseAudio compatibility
 - **Networking**: NetworkManager enabled
-- **Virtualization**: VMware guest tools enabled (Windows VM support)
-- **Boot Loader**: GRUB with OS prober
+- **Virtualization**: 
+  - VMware guest tools (main branch)
+  - Parallels guest tools (parallels-mac-arm branch)
+- **Boot Loader**: 
+  - GRUB with OS prober (x86_64)
+  - systemd-boot (ARM64)
 
 ### Development Environment
 - **Editor**: Helix (from unstable channel) with custom configuration
@@ -36,9 +44,21 @@ This is a flake-based NixOS configuration for an x86_64-linux system running on 
 
 ## Installation
 
-1. Ensure you have Nix with flakes enabled
-2. Clone this repository
-3. Run the system rebuild:
+### For VMware (x86_64) - main branch
+1. Clone this repository
+2. Run the system rebuild:
+   ```bash
+   sudo nixos-rebuild switch --flake .#nixos
+   ```
+
+### For Parallels on Mac (ARM64) - parallels-mac-arm branch
+1. Clone this repository and checkout the ARM branch:
+   ```bash
+   git clone https://github.com/brandonchui/nixos-config.git
+   cd nixos-config
+   git checkout parallels-mac-arm
+   ```
+2. Apply the configuration:
    ```bash
    sudo nixos-rebuild switch --flake .#nixos
    ```
@@ -53,11 +73,8 @@ The primary user `bchui` is configured with:
 
 ## VM Support
 
-### Currently Supported
-- **VMware**: Full guest tools integration for Windows VMs
-
-### TODO
-- [ ] Add Parallels support for macOS VMs
+- **VMware** (main branch): Full guest tools integration for x86_64 systems
+- **Parallels** (parallels-mac-arm branch): Full guest tools integration for ARM64 Mac systems
 
 ## File Structure
 
@@ -71,7 +88,15 @@ nixos-config/
 
 ## Notes
 
+- NixOS version: 25.05
 - System state version: 25.05
 - Home Manager state version: 25.05
 - Experimental features enabled: `nix-command`, `flakes`
 - Default git branch set to: `master`
+
+## Platform-Specific Notes
+
+### ARM64 (Parallels Mac)
+- Uses systemd-boot instead of GRUB for better ARM64 UEFI support
+- Hardware configuration includes ARM-specific kernel modules
+- Parallels guest tools enabled for clipboard sharing and folder mounting
