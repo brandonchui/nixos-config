@@ -125,10 +125,12 @@
           environment.variables.EDITOR = "hx";
           # Enable Parallels guest support for better integration
           hardware.parallels.enable = true;
-          hardware.parallels.autoMountShares = true;
+          # Apprently we do not neeed this anymore
+          # hardware.parallels.autoMountShares = true;
           system.stateVersion = "25.05";
         })
       ];
     };
   };
 }
+
