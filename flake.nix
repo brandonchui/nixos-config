@@ -36,10 +36,14 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.bchui = { ... }: {
-            imports = [helix-config.homeManagerModules.default];
-            # programs.helix.extraPackages = [
-            #   unstablePkgs.tree-sitter-cpp
-            # ];
+            # imports = [helix-config.homeManagerModules.default];
+
+            # Configure helix directly instead of using the module
+            home.file.".config/helix" = {
+              source = helix-config;
+              recursive = true;
+            };
+
             programs.git = {
               enable = true;
               userName = "brandonchui";
