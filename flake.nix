@@ -4,15 +4,16 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     helix-config.url = "github:brandonchui/helix_settings/HEAD";
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     zig.url = "github:mitchellh/zig-overlay";
   };
   
   outputs = { self, nixpkgs, nixpkgs-unstable, helix-config, home-manager, zig, ... }:
   let
+    system = "x86_64-linux";
     unstablePkgs = import nixpkgs-unstable{
-      system ="aarch64-linux" ;
+      inherit system;
       config.allowUnfree = true;
     };
     overlays = [
@@ -25,7 +26,7 @@
   in
   {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      system = "aarch64-linux";
+      inherit system;
       modules = [
         ./hardware-configuration.nix
         home-manager.nixosModules.home-manager
@@ -52,9 +53,9 @@
           };
           
           nix.settings.experimental-features = [ "nix-command" "flakes" ];
-          # Use systemd-boot for ARM64 instead of GRUB
-          boot.loader.systemd-boot.enable = true;
-          boot.loader.efi.canTouchEfiVariables = true;
+          # Use GRUB for single partition setup
+          boot.loader.grub.enable = true;
+          boot.loader.grub.device = "/dev/sda";
           networking.hostName = "nixos";
           networking.networkmanager.enable = true;
           time.timeZone = "America/Los_Angeles";
@@ -62,7 +63,7 @@
           services.xserver.displayManager.gdm.enable = true;
           services.xserver.desktopManager.gnome.enable = true;
           services.printing.enable = true;
-          hardware.pulseaudio.enable = false;
+          services.pulseaudio.enable = false;
           security.rtkit.enable = true;
           services.pipewire = {
             enable = true;
@@ -125,7 +126,6 @@
           environment.variables.EDITOR = "hx";
           # Enable Parallels guest support for better integration
           hardware.parallels.enable = true;
-          hardware.parallels.autoMountShares = true;
           system.stateVersion = "25.05";
         })
       ];

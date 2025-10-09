@@ -11,13 +11,8 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/2ec7e152-3d46-44b3-b9f5-ddb91e181a03";
+    { device = "/dev/disk/by-uuid/bb881e67-4dd2-4e18-856b-9e7b71bb525a";
       fsType = "ext4";
-    };
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/657A-18CE";
-      fsType = "vfat";
     };
 
   swapDevices = [ ];
@@ -25,7 +20,7 @@
   networking.useDHCP = lib.mkDefault true;
 
   # Set the platform to ARM64
-  nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   
   # Parallels-specific optimizations
   services.spice-vdagentd.enable = false;
