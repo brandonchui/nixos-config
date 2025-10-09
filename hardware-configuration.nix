@@ -22,7 +22,7 @@
   # Set the platform to ARM64
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   
-  # Parallels-specific optimizations
-  services.spice-vdagentd.enable = false;
-  virtualisation.hypervGuest.enable = false;
+  # Parallels-specific optimizations (commented out for VMware)
+  # services.spice-vdagentd.enable = false;
+  # virtualisation.hypervGuest.enable = false;
 }

@@ -124,8 +124,8 @@
             python314
           ];
           environment.variables.EDITOR = "hx";
-          # Enable Parallels guest support for better integration
-          hardware.parallels.enable = true;
+          # Enable Parallels guest support for better integration (commented out for VMware)
+          # hardware.parallels.enable = true;
           system.stateVersion = "25.05";
         })
       ];
